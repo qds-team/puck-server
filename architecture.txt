@@ -1,0 +1,2 @@
+- Serve files to a front end to be able to viewed
+- have button to set path of backend to search for files
