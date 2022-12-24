@@ -1,9 +1,16 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    puck (id) {
+    mangas (id) {
         id -> Integer,
         name -> Text,
         path -> Text,
+    }
+}
+
+diesel::table! {
+    users (id) {
+        name -> Text,
+        password -> Text,
     }
 }
