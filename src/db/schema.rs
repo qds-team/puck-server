@@ -10,7 +10,6 @@ diesel::table! {
 
 diesel::table! {
     users (id) {
-        name -> Text,
         password -> Text,
     }
 }

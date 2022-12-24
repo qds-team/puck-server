@@ -1,14 +1,16 @@
 use std::path::PathBuf;
+use rocket::Rocket;
+use rocket_jwt::{JWT, RocketJWT};
 
-#[get("/get-media")]
-async fn get_media(manga_id: &str) {
-    //TODO: Check if Client is Authenticated
-    //TODO: Implement file server to serve manga file
+#[get("/manga/<id>")]
+fn get_manga(id: i32) -> Result<NamedFile, DieselError> {
+    use diesel::prelude::*;
+    use schema::manga::dsl::*;
 
-    base:
+    let connection = establish_connection();
+    let manga = manga.find(id).first::<Manga>(&connection)?;
 
+    Ok(NamedFile::open(manga.path)?)
 }
 
-async fn files(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/").join(file)).await.ok();
-}
+//fn files(jwt: JWT<MyClaims>)
