@@ -1,9 +1,9 @@
 use std::path::PathBuf;
-use rocket::Rocket;
+use rocket::{Rocket, State};
 use rocket_jwt::{JWT, RocketJWT};
 
 #[get("/manga/<id>")]
-fn get_manga(id: i32) -> Result<NamedFile, DieselError> {
+fn get_manga(id: i32, jwt: JWT<MyClaims>) -> Result<NamedFile, DieselError> {
     use diesel::prelude::*;
     use schema::manga::dsl::*;
 
@@ -12,5 +12,3 @@ fn get_manga(id: i32) -> Result<NamedFile, DieselError> {
 
     Ok(NamedFile::open(manga.path)?)
 }
-
-//fn files(jwt: JWT<MyClaims>)

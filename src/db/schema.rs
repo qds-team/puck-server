@@ -28,3 +28,23 @@ struct NewUser<'a> {
     ip_address: &'a str,
     password: &'a str,
 }
+
+diesel::table! {
+    settings (id) {
+        id -> Integer,
+        key -> Text,
+        value -> Text,
+    }
+}
+
+use diesel::allow_tables_to_appear_in_same_query;
+use super::models::Setting;
+
+#[derive(Insertable)]
+#[table_name = "settings"]
+pub struct NewSetting<'a> {
+    pub key: &'a str,
+    pub value: &'a str,
+}
+
+allow_tables_to_appear_in_same_query!(settings,);

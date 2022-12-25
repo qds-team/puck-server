@@ -1,18 +1,24 @@
-#[macro_use] extern crate rocket;
-use std::path::{Path, PathBuf};
-use rocket::fs::NamedFile;
-use rocket::{get, post, form::Form, routes};
+use rocket::{Rocket, State};
+use rocket_jwt::RocketJWT;
 
-pub mod models;
-pub mod schema;
-pub mod utils/ip_utils;
+#[tokio::main]
+async fn main() {
+    // Start the scan task
+    let task = async move {
+        loop {
+            // Scan the directory
+            scan_directory(&conn, &universal_path).unwrap();
 
-fn main() {
+            // Wait for 5 minutes before scanning again
+            delay_for(Duration::from_secs(300)).await;
+        }
+    };
+    spawn(task);
+
+    // Mount the routes
     rocket::ignite()
-        .mount("/", routes![
-            routes::
-            routes::
-            routes::
-        ])
-
+        .manage(DbConn(SqliteConnection::establish("database.sqlite3").unwrap()))
+        .manage(RocketJWT::fairing())
+        .mount("/api", routes![login, register, scan, set_path, get_mangas, get_manga])
+        .launch();
 }

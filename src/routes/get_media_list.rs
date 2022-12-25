@@ -12,12 +12,13 @@ use rocket::response::status::Custom;
 use rocket::response::{self, Responder};
 use rocket::Request;
 use rocket_contrib::json::Json;
+use rocket_jwt::{JWT, RocketJWT};
 
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 
-use crate::models;
-use crate:: schema;
+use crate::db::models;
+use crate::db::schema;
 
 use self::models::{Manga, NewManga};
 
@@ -26,17 +27,17 @@ struct DbConn(SqliteConnection);
 
 #[derive(Serialize, Deserialize)]
 struct MangaList {
-    mangas: Vec<Manga>
+    mangas: Vec<Manga>,
 }
 
 #[get("/mangas")]
-fn get_mangas(conn: DbConn) -> Result<Json<MangaList>, Custom<String>> {
+fn get_mangas(conn: DbConn, jwt: JWT<MyClaims>) -> Result<Json<MangaList>, Custom<String>> {
     use self::schema::mangas::dsl::*;
 
     let results = mangas.load::<Manga>(&conn);
 
     match results {
         Ok(mangas) => Ok(Json(MangaList { mangas })),
-        Err(_) => Err(Custom(Status::InternalServerError, String::from("Error loading mangas")))
+        Err(_) => Err(Custom(Status::InternalServerError, String::from("Error loading mangas"))),
     }
 }

@@ -41,3 +41,31 @@ impl Manga {
         Ok(mangas.load::<Manga>(&**conn)?)
     }
 }
+
+#[derive(Insertable)]
+#[table_name = "manga"]
+pub struct NewManga<'a> {
+    pub name: &'a str,
+    pub path: &'a str,
+}
+
+impl<'a> NewManga<'a> {
+    pub fn new(name: &'a str, path: &'a str, universal_path: &'a str) -> Self {
+        let mut full_path = universal_path.to_string();
+        full_path.push_str(path);
+
+        Self {
+            name,
+            path: &full_path,
+        }
+    }
+}
+
+//SETTINGS
+#[derive(Debug, Queryable, Insertable)]
+#[table_name = "settings"]
+pub struct Setting {
+    pub id: i32,
+    pub key: String,
+    pub value: String,
+}
