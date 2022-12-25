@@ -1,48 +1,34 @@
-use std::path::PathBuf;
-use glob::glob;
-use rocket::State;
-use rocket_contrib::database::DbConn;
+use std::fs;
+use std::path::Path;
+use std::time::Duration;
 
-fn scan_directory(conn: &DbConn, path: &PathBuf) -> Result<(), diesel::result::Error> {
-    let mut found_mangas = Vec::new();
+use tokio::time::delay_for;
 
-    // Scan the directory for CBZ, CBR, and PDF files
-    let cbz_pattern = path.join("**/*.cbz");
-    let cbr_pattern = path.join("**/*.cbr");
-    let pdf_pattern = path.join("**/*.pdf");
+use crate::models::{Manga, MangaFile, NewManga, NewMangaFile};
+use crate::schema::manga_files::dsl::*;
 
-    for entry in glob(&cbz_pattern.to_string_lossy())? {
-        let entry = entry?;
-        let path = entry.path();
-        found_mangas.push(NewManga {
-            path: path.to_string_lossy().to_string(),
-            file_format: "cbz".to_string(),
-        });
+pub async fn scan_new_manga_files(conn: &SqliteConnection, manga_id: i32, path: &str) {
+    let manga = Manga::get(manga_id, conn).unwrap();
+    let manga_path = Path::new(&manga.path);
+
+    let files = fs::read_dir(path).unwrap();
+
+    for file in files {
+        let file = file.unwrap();
+        let file_path = file.path();
+        let file_extension = file_path.extension().unwrap().to_str().unwrap();
+
+        if file_extension == "cbz" || file_extension == "cbr" || file_extension == "pdf" {
+            let file_name = file_path.file_name().unwrap().to_str().unwrap();
+            let manga_file_path = manga_path.join(file_name);
+            let manga_file_path = manga_file_path.to_str().unwrap();
+
+            let new_manga_file = NewMangaFile {
+                manga_id: manga_id,
+                path: manga_file_path.to_string(),
+            };
+
+            let manga_file = NewMangaFile::insert(new_manga_file, conn);
+        }
     }
-    for entry in glob(&cbr_pattern.to_string_lossy())? {
-        let entry = entry?;
-        let path = entry.path();
-        found_mangas.push(NewManga {
-            path: path.to_string_lossy().to_string(),
-            file_format: "cbr".to_string(),
-        });
-    }
-    for entry in glob(&pdf_pattern.to_string_lossy())? {
-        let entry = entry?;
-        let path = entry.path();
-        found_mangas.push(NewManga {
-            path: path.to_string_lossy().to_string(),
-            file_format: "pdf".to_string(),
-        });
-    }
-
-    // Insert the found manga entries into the database
-    use schema::mangas::dsl::*;
-    for manga in found_mangas {
-        diesel::insert_into(mangas)
-            .values(&manga)
-            .execute(conn)?;
-    }
-
-    Ok(())
 }

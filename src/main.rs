@@ -13,7 +13,7 @@ async fn main() {
     let task = async move {
         loop {
             // Scan the directory
-            db::scan_directory(&conn, &universal_path).unwrap(); // pass the connection to scan_directory
+            db::scan_new_manga_files(&conn, &universal_path).unwrap(); // pass the connection to scan_new_manga_files
 
             // Wait for 5 minutes before scanning again
             delay_for(Duration::from_secs(300)).await;

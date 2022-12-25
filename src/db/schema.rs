@@ -1,12 +1,24 @@
 // schema.rs
 
 diesel::table! {
-    mangas (id) {
+    manga (id) {
         id -> Integer,
         name -> Text,
         path -> Text,
     }
 }
+
+diesel::table! {
+    manga_files (id) {
+        id -> Integer,
+        manga_id -> Integer,
+        filename -> Text,
+    }
+}
+
+diesel::joinable!(manga_files -> manga (manga_id));
+
+diesel::allow_tables_to_appear_in_same_query!(manga, manga_files);
 
 diesel::table! {
     settings (id) {
