@@ -1,4 +1,4 @@
-// @generated automatically by Diesel CLI.
+// schema.rs
 
 diesel::table! {
     mangas (id) {
@@ -6,27 +6,6 @@ diesel::table! {
         name -> Text,
         path -> Text,
     }
-}
-
-#[derive(Insertable)]
-#[table_name = "mangas"]
-struct NewManga<'a> {
-    name: &'a str,
-    path: &'a str,
-}
-
-dissel::table! {
-    users (ip_address) {
-        ip_address -> Text,
-        password -> Text,
-    }
-}
-
-#[derive(Insertable)]
-#[table_name = "users"]
-struct NewUser<'a> {
-    ip_address: &'a str,
-    password: &'a str,
 }
 
 diesel::table! {
@@ -37,14 +16,12 @@ diesel::table! {
     }
 }
 
-use diesel::allow_tables_to_appear_in_same_query;
-use super::models::Setting;
-
-#[derive(Insertable)]
-#[table_name = "settings"]
-pub struct NewSetting<'a> {
-    pub key: &'a str,
-    pub value: &'a str,
+diesel::table! {
+    users (id) {
+        id -> Integer,
+        ip -> Text,
+        password_hash -> Text,
+    }
 }
 
-allow_tables_to_appear_in_same_query!(settings,);
+diesel::allow_tables_to_appear_in_same_query!(mangas, settings, users,);

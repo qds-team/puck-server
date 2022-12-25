@@ -15,8 +15,6 @@ fn login(
     form: Form<LoginForm>,
     conn: DbConn,
 ) -> Result<Redirect, Template> {
-    use schema::users::dsl::*;
-
     let ip_address = form.ip_address.parse::<Ipv4Addr>().map_err(|_| {
         Template::render("login", &format!("Invalid IP address: {}", form.ip_address))
     })?;
@@ -27,22 +25,15 @@ fn login(
             &format!("IP address is not local: {}", ip_address),
         ));
     }
-    let user = users
-        .filter(ip_address.eq(&form.ip_address))
-        .first::<User>(&*conn)
-        .optional()
-        .map_err(|_| Template::render("login", "Error fetching user from database"))?;
 
-    if let Some(user) = user {
-        if user.password != form.password {
-            return Err(Template::render("login", "Invalid password"));
-        }
+    let user = User::find(&conn, &form.ip_address)?;
 
+    if User::verify_password(&form.password, &user.password_hash)? {
         let claims = MyClaims { ip_address: user.ip_address };
         let token = jwt.sign(claims)?;
 
         Ok(Redirect::to(format!("/files?token={}", token)))
     } else {
-        Err(Template::render("login", "User not found"))
+        Err(Template::render("login", "Invalid login"))
     }
 }

@@ -15,8 +15,10 @@ struct SetPasswordForm {
 fn set_password(conn: DbConn, form: Form<SetPasswordForm>, jwt: JWT<MyClaims>) -> Result<String, diesel::result::Error> {
     use schema::users::dsl::*;
 
+    let hashed_password = hash_password(&form.password)?;
+
     diesel::update(users.filter(ip_address.eq(form.ip_address)))
-        .set(password.eq(form.password))
+        .set(password.eq(hashed_password))
         .execute(&conn)?;
 
     Ok("Password updated successfully".to_string())

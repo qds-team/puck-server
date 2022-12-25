@@ -13,16 +13,12 @@ struct RegisterForm {
 
 #[post("/register", data = "<form>")]
 fn register(conn: DbConn, form: Form<RegisterForm>, jwt: JWT<MyClaims>) -> Result<String, diesel::result::Error> {
-    use schema::users::dsl::*;
-
     let new_user = NewUser {
-        ip_address: &form.ip_address,
+        ip: &form.ip_address,
         password: &form.password,
     };
 
-    diesel::insert_into(users)
-        .values(&new_user)
-        .execute(&conn)?;
+    User::register(&conn, &new_user.ip, &new_user.password)?;
 
     Ok("User registered successfully".to_string())
 }
