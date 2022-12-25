@@ -1,30 +1,47 @@
-use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
+use glob::glob;
+use rocket::State;
+use rocket_contrib::database::DbConn;
 
-use diesel::prelude::*;
+fn scan_directory(conn: &DbConn, path: &PathBuf) -> Result<(), diesel::result::Error> {
+    let mut found_mangas = Vec::new();
 
-use crate::models::{Manga, NewManga};
-use crate::schema::mangas::dsl::*;
+    // Scan the directory for CBZ, CBR, and PDF files
+    let cbz_pattern = path.join("**/*.cbz");
+    let cbr_pattern = path.join("**/*.cbr");
+    let pdf_pattern = path.join("**/*.pdf");
 
-pub fn scan_directory(conn: &SqliteConnection, universal_path: &str) -> Result<(), diesel::result::Error> {
-    let directory = Path::new(universal_path);
-    let entries = fs::read_dir(directory)?;
-
-    for entry in entries {
+    for entry in glob(&cbz_pattern.to_string_lossy())? {
         let entry = entry?;
         let path = entry.path();
-        let file_name = path.file_name().unwrap().to_str().unwrap();
+        found_mangas.push(NewManga {
+            path: path.to_string_lossy().to_string(),
+            file_format: "cbz".to_string(),
+        });
+    }
+    for entry in glob(&cbr_pattern.to_string_lossy())? {
+        let entry = entry?;
+        let path = entry.path();
+        found_mangas.push(NewManga {
+            path: path.to_string_lossy().to_string(),
+            file_format: "cbr".to_string(),
+        });
+    }
+    for entry in glob(&pdf_pattern.to_string_lossy())? {
+        let entry = entry?;
+        let path = entry.path();
+        found_mangas.push(NewManga {
+            path: path.to_string_lossy().to_string(),
+            file_format: "pdf".to_string(),
+        });
+    }
 
-        let existing_manga = mangas
-            .filter(name.eq(file_name))
-            .first::<Manga>(conn);
-
-        if existing_manga.is_err() {
-            let new_manga = NewManga::new(file_name, path.to_str().unwrap(), universal_path);
-            diesel::insert_into(mangas)
-                .values(&new_manga)
-                .execute(conn)?;
-        }
+    // Insert the found manga entries into the database
+    use schema::mangas::dsl::*;
+    for manga in found_mangas {
+        diesel::insert_into(mangas)
+            .values(&manga)
+            .execute(conn)?;
     }
 
     Ok(())
