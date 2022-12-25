@@ -19,13 +19,6 @@ fn login(
         Template::render("login", &format!("Invalid IP address: {}", form.ip_address))
     })?;
 
-    if !is_local_ipv4_address(&ip_address) {
-        return Err(Template::render(
-            "login",
-            &format!("IP address is not local: {}", ip_address),
-        ));
-    }
-
     let user = User::find(&conn, &form.ip_address)?;
 
     if User::verify_password(&form.password, &user.password_hash)? {
