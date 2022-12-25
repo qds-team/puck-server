@@ -4,6 +4,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
+use dotenv::dotenv;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
@@ -12,3 +13,4 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
+

@@ -4,20 +4,40 @@
 #![allow(clippy::all)]
 use diesel::{self, prelude::*};
 use rocket_contrib::database;
+use crate::schema::mangas::dsl::mangas;
 
 #[database("sqlite_database")]
 pub struct DbConn(diesel::SqliteConnection);
 
 #[derive(Queryable, Insertable)]
 #[table_name = "users"]
-struct User {
+pub struct User {
     ip_address: String,
     password: String,
 }
 
-#[derive(Queryable, Debug)]
+impl User {
+    pub fn by_ip_address(ip_address: &str, conn: &DbConn) -> Result<Option<User>, diesel::result::Error> {
+        use schema::users::dsl::*;
+
+        Ok(users.filter(ip_address.eq(ip_address)).first::<User>(&**conn).optional())
+    }
+}
+
+
+//MANGAS
+#[derive(Queryable, Insertable)]
+#[table_name = "mangas"]
 pub struct Manga {
-    pub id: i32,
-    pub name: String,
-    pub path: String,
+    id: i32,
+    name: String,
+    path: String,
+}
+
+impl Manga {
+    pub fn all(conn: &DbConn) -> Result<Vec<Manga>, diesel::result::Error> {
+        use schema::mangas::dsl::*;
+
+        Ok(mangas.load::<Manga>(&**conn)?)
+    }
 }
