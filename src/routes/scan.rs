@@ -1,6 +1,6 @@
 use crate::scan;
 
-#[post("/scan")]
+#[PUT("/scan")]
 fn scan(conn: DbConn, jwt: JWT<MyClaims>) -> Result<String, Custom<String>> {
     use self::schema::settings::dsl::*;
 
