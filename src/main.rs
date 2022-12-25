@@ -25,6 +25,6 @@ async fn main() {
     rocket::ignite()
         .manage(conn) // pass the connection to Rocket
         .manage(RocketJWT::fairing())
-        .mount("/api", routes![login, register, scan, set_path, get_mangas, get_manga])
+        .mount("/api", routes![login, register, scan, set_path, get_mangas, get_manga, get_manga_file])
         .launch();
 }
