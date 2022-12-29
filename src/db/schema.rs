@@ -5,6 +5,7 @@ diesel::table! {
         id -> Integer,
         name -> Text,
         path -> Text,
+        files -> Array<Text>,
     }
 }
 
@@ -36,4 +37,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(mangas, settings, users,);
+diesel::allow_tables_to_appear_in_same_query!(manga, settings, users, manga_files);

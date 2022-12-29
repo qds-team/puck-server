@@ -1,7 +1,7 @@
 use diesel::{Connection, SqliteConnection};
 
-mod models;
-mod schema;
+pub mod models;
+pub mod schema;
 
 pub fn establish_connection() -> SqliteConnection {
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");

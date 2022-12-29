@@ -1,9 +1,7 @@
-use std::ptr::hash;
-use super::schema::{mangas, settings, users};
+use super::schema::{manga, settings, users, manga_files};
 use serde::{Deserialize, Serialize};
-use diesel::{self, ExpressionMethods, QueryDsl, RunQueryDsl, SqliteConnection};
+use diesel::{self, ExpressionMethods, QueryDsl, RunQueryDsl, SqliteConnection, Insertable, Queryable, result::Error};
 use bcrypt::{hash, verify};
-use crate::db::schema::mangas::dsl::mangas;
 
 #[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct Manga {
@@ -15,7 +13,7 @@ pub struct Manga {
 
 
 #[derive(Insertable)]
-#[table_name = "manga_files"]
+#[table_name = "manga"]
 pub struct NewManga {
     pub id: i32,
     pub name: String,
@@ -25,19 +23,19 @@ pub struct NewManga {
 
 impl Manga {
     pub fn all(conn: &SqliteConnection) -> Vec<Manga> {
-        use schema::manga::dsl::*;
+        use super::schema::manga::dsl::*;
 
         manga.load::<Manga>(conn).unwrap()
     }
 
     pub fn get(id: i32, conn: &SqliteConnection) -> Option<Manga> {
-        use schema::manga::dsl::*;
+        use super::schema::manga::dsl::*;
 
         manga.find(id).first::<Manga>(conn).ok()
     }
 
     pub fn insert(manga: NewManga, conn: &SqliteConnection) -> Result<Manga, DieselError> {
-        use schema::manga::dsl::*;
+        use super::schema::manga::dsl::*;
 
         diesel::insert_into(manga::table)
             .values(&manga)
@@ -45,7 +43,7 @@ impl Manga {
     }
 
     pub fn update(id: i32, manga: NewManga, conn: &SqliteConnection) -> bool {
-        use schema::manga::dsl::*;
+        use super::schema::manga::dsl::*;
 
         diesel::update(manga.find(id))
             .set(&manga)
@@ -54,7 +52,7 @@ impl Manga {
     }
 
     pub fn delete(id: i32, conn: &SqliteConnection) -> bool {
-        use schema::manga::dsl::*;
+        use super::schema::manga::dsl::*;
 
         diesel::delete(manga.find(id))
             .execute(conn)
@@ -63,8 +61,8 @@ impl Manga {
 }
 
 impl Insertable<manga::table> for Manga {
-    fn values(&self) -> crate::rocket_contrib::databases::diesel::InsertValues<manga::table> {
-        use crate::rocket_contrib::databases::diesel::dsl::{columns, values};
+    fn values(&self) -> rocket_contrib::databases::diesel::InsertValues<manga::table> {
+        use rocket_contrib::databases::diesel::dsl::{columns, values};
 
         values((
             manga::name.eq(self.name.clone()),
@@ -75,7 +73,7 @@ impl Insertable<manga::table> for Manga {
 
 impl AsChangeset for Manga {
     fn as_changeset(&self) -> Changeset {
-        use crate::rocket_contrib::databases::diesel::dsl::{columns, values};
+        use rocket_contrib::databases::diesel::dsl::{columns, values};
 
         values((
             manga::name.eq(self.name.clone()),
@@ -100,19 +98,19 @@ pub struct NewSetting {
 
 impl Setting {
     pub fn all(conn: &SqliteConnection) -> Vec<Setting> {
-        use crate::schema::settings::dsl::*;
+        use super::schema::settings::dsl::*;
 
         settings.load::<Setting>(conn).unwrap()
     }
 
     pub fn get(conn: &SqliteConnection, key: &str) -> Result<Setting, String> {
-        use crate::schema::settings::dsl::*;
+        use super::schema::settings::dsl::*;
 
         settings.filter(key.eq(key)).first::<Setting>(conn).map_err(|e| e.to_string())
     }
 
     pub fn insert(conn: &SqliteConnection, setting: NewSetting) -> Result<Setting, String> {
-        use crate::schema::settings::dsl::*;
+        use super::schema::settings::dsl::*;
 
         diesel::insert_into(settings).values(&setting).execute(conn).map_err(|e| e.to_string())?;
 
@@ -120,7 +118,7 @@ impl Setting {
     }
 
     pub fn update(conn: &SqliteConnection, key: &str, setting: NewSetting) -> Result<(), String> {
-        use crate::schema::settings::dsl::*;
+        use super::schema::settings::dsl::*;
 
         diesel::update(settings.filter(key.eq(key)))
             .set((key.eq(&setting.key), value.eq(&setting.value)))
@@ -146,13 +144,13 @@ pub struct NewUser {
 
 impl User {
     pub fn find(conn: &SqliteConnection, ip: &str) -> Result<User, String> {
-        use crate::schema::users::dsl::*;
+        use super::schema::users::dsl::*;
 
         users.filter(ip.eq(ip)).first::<User>(conn).map_err(|e| e.to_string())
     }
 
     pub fn register(conn: &SqliteConnection, ip: &str, password: &str) -> Result<User, String> {
-        use crate::schema::users::dsl::*;
+        use crate::db::schema::users::dsl::*;
 
         let password_hash = hash(password, 6).map_err(|e| e.to_string())?;
         let new_user = NewUser {
@@ -174,14 +172,14 @@ impl User {
 pub struct MangaFiles {
     pub id: i32,
     pub manga_id: i32,
-    pub file_name: String,
+    pub filename: String,
 }
 
 #[derive(Debug, Insertable, Serialize, Deserialize)]
 #[table_name = "manga_files"]
 pub struct NewMangaFiles {
     pub manga_id: i32,
-    pub file_name: String,
+    pub filename: String,
 }
 
 impl MangaFiles {

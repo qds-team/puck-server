@@ -1,8 +1,10 @@
 use rocket::{post, request::Form, State};
 use rocket_contrib::database;
-use rocket_jwt::{JWT, RocketJWT};
+use rocket_jwt::jwt;
 
-#[database("sqlite_database")]
+use argon2::{self, Config};
+use rand::Rng;
+k
 pub struct DbConn(diesel::SqliteConnection);
 
 #[derive(FromForm)]
@@ -22,4 +24,10 @@ fn set_password(conn: DbConn, form: Form<SetPasswordForm>, jwt: JWT<MyClaims>) -
         .execute(&conn)?;
 
     Ok("Password updated successfully".to_string())
+}
+
+fn hash_password(password: &str) -> String {
+    let salt: [u8; 32] = rand::thread_rng().gen();
+    let config = Config::default();
+    argon2::hash_encoded(password.as_bytes(), &salt, &config).unwrap()
 }

@@ -1,7 +1,6 @@
 use rocket::{response::Redirect, request::Form, State};
 use rocket_contrib::{database::DbConn, templates::Template};
 use rocket_jwt::{Claims, JWT, Signer, Token};
-use crate::auth::auth;
 
 #[derive(FromForm)]
 struct LoginForm {

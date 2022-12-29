@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use tokio::time::delay_for;
 
-use crate::models::{Manga, MangaFile, NewManga, NewMangaFile};
+use crate::db::models::{Manga, MangaFile, NewManga, NewMangaFile};
 use crate::schema::manga_files::dsl::*;
 
 pub async fn scan_new_manga_files(conn: &SqliteConnection, manga_id: i32, path: &str) {
