@@ -6,9 +6,8 @@ use axum::{
     http::{Request, StatusCode},
     response::{IntoResponse, Response},
     body::{BoxBody, boxed, Body},
-    extract::Path,
+    extract::{Path, State},
 };
-use dotenv::dotenv;
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
 use serde::Deserialize;
@@ -19,7 +18,7 @@ pub enum GetMediaErrors {
     FileDoesNotExist,
 }
 
-impl From<sqlx::Error> for GetMediaErrors{
+impl From<sqlx::Error> for GetMediaErrors {
     fn from(e: sqlx::Error) -> Self {
         Self::SqlxError(e)
     }
@@ -47,19 +46,17 @@ impl IntoResponse for GetMediaErrors {
 }
 
 #[axum_macros::debug_handler]
-pub async fn get_media(Path(id): Path<i32>) -> Result<Json<Vec<MangaFiles>>, GetMediaErrors> {
-    dotenv().ok();
-    let pool = SqlitePool::connect("DATABASE_URL").await?;
+pub async fn get_media(
+    State(pool): State<SqlitePool>,
+    Path(id): Path<i32>,
+) -> Result<Json<Vec<MangaFiles>>, GetMediaErrors> {
 
-    let manga_files: Vec<MangaFiles> = sqlx::query_as!(
-        MangaFiles,
+   let manga_files: Vec<MangaFiles> = sqlx::query_as(
         "SELECT * FROM manga_files WHERE manga_id = $1",
-        id
     )
+    .bind(id)
     .fetch_all(&mut pool.acquire().await?)
     .await?;
-
-    //TODO:  add if statement to check for sqlx error then throw more specific error
 
     Ok(Json(manga_files))
 }
@@ -72,22 +69,22 @@ pub struct Params {
 
 #[axum_macros::debug_handler]
 pub async fn get_media_file( 
+    State(pool): State<SqlitePool>,
     Path(Params {id, filename}): Path<Params>,
 ) -> Result<Response<BoxBody>, GetMediaErrors> {
-    dotenv().ok();
-    let pool = SqlitePool::connect("DATABASE_URL").await?;
-
-    let manga = sqlx::query_as!(
-        Manga,
-        "SELECT * FROM manga WHERE id = $1", id,
+    
+    let manga: Manga = sqlx::query_as(
+        "SELECT * FROM manga WHERE id = $1",
     )
+    .bind(id)
     .fetch_one(&mut pool.acquire().await?)
     .await?;
 
-    let manga_file: MangaFiles = sqlx::query_as!(
-        MangaFiles,
-        "SELECT * FROM manga_files WHERE manga_id = $1 AND filename = $2", id, filename,
+    let manga_file: MangaFiles = sqlx::query_as(
+        "SELECT * FROM manga_files WHERE manga_id = $1 AND filename = $2",
     )
+    .bind(id)
+    .bind(filename)
     .fetch_one(&mut pool.acquire().await?)
     .await?;
 

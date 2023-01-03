@@ -1,5 +1,7 @@
-use serde::{Serialize, ser::{Error, SerializeStruct}, Serializer};
+use serde::{Serialize, Deserialize, ser::{Error, SerializeStruct}, Serializer};
+use tracing_subscriber::registry::Data;
 
+#[derive(sqlx::FromRow)]
 pub struct Manga {
     pub id: i64,
     pub name: String,
@@ -8,11 +10,12 @@ pub struct Manga {
 
 //password & universal_path
 pub struct Setting {
-    pub id: i32,
+    pub id: i64,
     pub key: String,
     pub value: String,
 }
 
+#[derive(sqlx::FromRow)]
 pub struct MangaFiles {
     pub id: i64,
     pub manga_id: i64,
@@ -30,4 +33,21 @@ impl Serialize for MangaFiles {
         state.serialize_field("filename", &self.filename)?;
         state.end()
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Settings {
+    pub db_settings: DatabaseSettings,
+    pub server_settings: ServerSettings,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct DatabaseSettings {
+    pub url: String
+}
+
+#[derive(Deserialize, Debug )]
+pub struct  ServerSettings {
+    pub password: String,
+    pub universal_path: String,
 }

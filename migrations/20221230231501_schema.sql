@@ -18,3 +18,6 @@ CREATE TABLE IF NOT EXISTS manga_files (
     manga_id    INTEGER             NOT NULL,
     filename    TEXT                NOT NULL
 );
+
+ALTER TABLE setting 
+ADD password TEXT
