@@ -1,18 +1,33 @@
 use crate::db::models::{Settings, DatabaseSettings, ServerSettings};
 use std::fs;
 use toml;
-use std::error::Error;
+use serde_derive::Deserialize;
+use serde::{ser, de};
+use std::fmt::{self, Display};
 
-#[derive(Debug)]
+#[derive(Deserialize, Debug)]
 pub enum EnvError {
-    UnableToLoadEnvFile(Box<dyn Error>),
+    Message(String),
+    UnableToLoadEnvFile,
 }
 
-impl From<Box<dyn Error>> for EnvError {
-    fn from(e: Box<dyn Error>) -> Self {
-        Self::UnableToLoadEnvFile(e)
+impl de::Error for EnvError {
+    fn custom<T: Display>(msg: T) -> Self {
+        EnvError::Message(msg.to_string())
     }
 }
+
+impl Display for EnvError{
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            EnvError::Message(msg) => formatter.write_str(msg),
+            EnvError::UnableToLoadEnvFile => formatter.write_str("unexpected end of input"),
+            /* and so forth */
+        }
+    }
+}
+
+impl std::error::Error for EnvError {}
 
 fn load_config() -> Result<Settings, EnvError> /*need to return smthn*/{
 
@@ -25,10 +40,11 @@ fn load_config() -> Result<Settings, EnvError> /*need to return smthn*/{
     let config_data: Result<Settings, EnvError> = match toml::from_str(&config_contents) {
         Ok(d) => d,
 
-        Err(e) => EnvError::UnableToLoadEnvFile,
+        Err(e) => Err(EnvError::UnableToLoadEnvFile),
     };
 
     return config_data;
+}
 
 pub fn get_password() -> String {
     let settings: Settings = load_config().unwrap();
