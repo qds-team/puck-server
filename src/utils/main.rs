@@ -11,7 +11,6 @@ use crate::routes::{
 use std::net::SocketAddr;
 use sqlx::SqlitePool;
 use utils::env_load::get_db_url;
-use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
 
 //import local modules
 mod routes; 
@@ -33,8 +32,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/media/:id/:filename", get(get_media_file))
         .route("/login", post(login))
         .route("/set-password", put(set_password))
-        .with_state(pool) //passing db connection to all 
-        .layer(CookieManagerLayer::new());
+        .with_state(pool); //passing db connection to all 
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -47,4 +45,3 @@ async fn main() -> anyhow::Result<()> {
     
     Ok(())
 }
- 
