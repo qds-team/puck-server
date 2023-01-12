@@ -27,6 +27,7 @@ impl IntoResponse for SetPasswordErrors {
 
 #[axum_macros::debug_handler]
 pub async fn set_password (body: String) -> Result<String, SetPasswordErrors> {
-    //env::set_var(PASSWORD, hash_password(&body));
+    //TODO: Set password in env file
+    
     Ok("Password set successfully".to_owned())
 }

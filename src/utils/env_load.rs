@@ -22,14 +22,13 @@ impl Display for EnvError{
         match self {
             EnvError::Message(msg) => formatter.write_str(msg),
             EnvError::UnableToLoadEnvFile => formatter.write_str("unexpected end of input"),
-            /* and so forth */
         }
     }
 }
 
 impl std::error::Error for EnvError {}
 
-fn load_config() -> Result<Settings, EnvError> /*need to return smthn*/{
+fn load_config() -> Result<Settings, EnvError> {
 
     let config = "env.toml";
     let config_contents = match fs::read_to_string(config) {
@@ -59,4 +58,9 @@ pub fn get_db_url() -> String {
 pub fn get_universal_path() -> String {
     let settings: Settings = load_config().unwrap();
     return settings.server_settings.universal_path;
+}
+
+pub fn set_password(password_hash: String) {
+    /*TODO: Set Password here */
+
 }
