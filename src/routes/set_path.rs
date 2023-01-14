@@ -1,10 +1,18 @@
+use axum::{
+    Json,
+    http::{StatusCode, Request},
+    response::{IntoResponse, Response},
+    extract::{State, BodyStream},
+    body,
+};
+
 use super::set_password::SetPasswordErrors;
 
 pub enum SetPathErrors {
     UnableToSetPath,
 }
 
-impl IntoResponse for SetPasswordErrors {
+impl IntoResponse for SetPathErrors {
     fn into_response(self) -> Response {
         let(status, err_msg) = match self {
             SetPathErrors::UnableToSetPath => (
