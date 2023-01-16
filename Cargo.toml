@@ -6,6 +6,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.5.0-rc.2"
-diesel = { version = "2.0.0", default-features =false, features = ["sqlite"] }
-dotenvy = "0.15"
+axum = "0.6.1"
+# tokio + rustls
+sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "sqlite" ] }
+tokio = { version = "1.23.0", features = ["full"]}
+tracing-subscriber = "0.3.16"
+tracing = "0.1.37"
+serde = {version = "1.0.152", features = ["derive"]}
+bcrypt = "0.13.0"
+argon2 = "0.4.1"
+rand_core = { version = "0.6", features = ["std"] }
+rand = "0.8.5"
+tower = "0.4.13"
+tower-http = {version = "0.3.5", features = ["fs"]}
+axum-macros = "0.3.0"
+anyhow = "1.0.68"
+toml = "0.5.10"
+serde_derive = "1.0.152"
+tower-cookies = "0.8.0"
