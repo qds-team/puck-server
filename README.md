@@ -20,11 +20,10 @@ Add pre-defined schema to `.db`
 ```
 sqlx migrate run
 ```
-Run/Build Project
+
+<p><b>Build Project</b></p>
+Prerequisites: Cargo, Yarn
+
 ```
-cargo run
-```
-or
-```
-cargo build
+python build.py
 ```
