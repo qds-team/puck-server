@@ -25,5 +25,5 @@ sqlx migrate run
 Prerequisites: Cargo, Yarn
 
 ```
-python build.py
+python3 build.py
 ```
