@@ -30,7 +30,7 @@ impl std::error::Error for EnvError {}
 
 fn load_config() -> Result<Settings, EnvError> {
 
-    let config = "env.toml";
+    let config = "../../env.toml";
     let config_contents = match fs::read_to_string(config) {
         Ok(c) => c,
         Err(e) => e.to_string(), 
