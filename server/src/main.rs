@@ -32,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/media/:id", get(get_media))
         .route("/media/:id/:filename", get(get_media_file))
         .route("/login", post(login))
-        .route("/set-password", put(set_password))
+        .route("/set-password/:pwd", put(set_password))
         .with_state(pool) //passing db connection to all 
         .layer(CookieManagerLayer::new());
 

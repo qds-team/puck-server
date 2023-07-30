@@ -35,18 +35,18 @@ impl Serialize for MangaFiles {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
     pub db_settings: DatabaseSettings,
     pub server_settings: ServerSettings,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DatabaseSettings {
     pub url: String
 }
 
-#[derive(Deserialize, Debug )]
+#[derive(Serialize, Deserialize, Debug )]
 pub struct  ServerSettings {
     pub password: String,
     pub universal_path: String,
