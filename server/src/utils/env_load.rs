@@ -70,3 +70,19 @@ pub fn set_env_password(password_hash: String) {
     let config = "env.toml";
     fs::write(config, toml_string).unwrap();
 }
+
+pub fn set_env_path(path: String) -> Result<(), Box<dyn std::error::Error>> {
+    let mut settings: Settings = load_config()?;
+    settings.server_settings.universal_path = path;
+
+    let toml_string = toml::to_string(&settings)?;
+
+    let config = "env.toml";
+    match fs::write(config, toml_string) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            println!("Error writing to file: {}", e);
+            Err(e.into())
+        }
+    }
+}
