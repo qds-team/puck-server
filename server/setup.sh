@@ -1,12 +1,14 @@
 #!/bin/bash
 
+### THIS SETUP SCRIPT IS ONLY FOR DEVELOPMENT PURPOSES
+
 # Prompt user for input
 read -p "Enter password: " password
 read -p "Enter universal path: " universal_path
 read -p "Enter db settings URL: " db_settings_url
 
 # Create TOML file
-cat > config.toml <<EOF
+cat > env.toml <<EOF
 [server_settings]
 password = "$password"
 universal_path = "$universal_path"
