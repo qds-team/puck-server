@@ -7,6 +7,7 @@ use crate::routes::{
     get_media::{get_media, get_media_file},
     login::login,
     set_password::set_password,
+    set_path::set_path,
 };
 use std::net::SocketAddr;
 use sqlx::SqlitePool;
@@ -32,7 +33,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/media/:id", get(get_media))
         .route("/media/:id/:filename", get(get_media_file))
         .route("/login", post(login))
-        .route("/set-password", put(set_password))
+        .route("/set-password/:pwd", put(set_password))
+        .route("/set-path/:path", put(set_path))
         .with_state(pool) //passing db connection to all 
         .layer(CookieManagerLayer::new());
 
