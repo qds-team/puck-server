@@ -1,3 +1,0 @@
-/target
-env.toml
-src/db/sqlite.db
