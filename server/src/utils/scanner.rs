@@ -1,5 +1,5 @@
 use std::fs;
-use create::utils::env_load;
+use crate::utils::env_load::get_universal_path;
 
 pub fn scan_dir() -> std::io::Result<()> {
     let path = get_universal_path();

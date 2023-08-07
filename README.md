@@ -5,20 +5,16 @@
 
 Setup Project on Clone
 
-Make setup script executable
 ```
-chmod +x setup.sh
-```
-Run setup
-```
-./setup.sh
+cd src
+go build setup.go
 ```
 
 <p><b>Build Project</b></p>
 Prerequisites: Cargo, Yarn
 
 ```
-python3 build.py
+go build build.go
 ```
 <h3 align="center">Contributors</h3>  
 <p align="center">

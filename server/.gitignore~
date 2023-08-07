@@ -1,4 +1,3 @@
 /target
 env.toml
 src/db/sqlite.db
-setup.exe
