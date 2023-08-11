@@ -4,6 +4,7 @@ use axum:: {
     http::{Request, StatusCode},
     response::{IntoResponse, Response},
     body::Body,
+    extract::State,
 };
 use crate::utils::scanner::scan_dir;
 
@@ -38,7 +39,7 @@ impl From<std::io::Error> for ScanErrors {
 }
 
 
-pub async fn scan() -> Result<(), ScanErrors>{
-    scan_dir()?;
+pub async fn scan(State(pool):State<SqlitePool>) -> Result<(), ScanErrors>{
+    scan_dir(&pool).await?;
     Ok(())
 }
