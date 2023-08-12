@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html lang = "en">
+<head>
+    <script src = "https://unpkg.com/htmx.org@1.9.2"></script>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id ="login=form" hx-post="/login" hx-target="#login-response">
+        <div>
+            <label for = "password">Password:</label>
+            <input type = "password" id = "password" name="password" required>
+        </div>
+        <div>
+            <button type = "submit">Login</button>
+        </div>
+    </form>
+    <div id="login-response"></div>
+</body>
+</html>

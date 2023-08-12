@@ -9,7 +9,7 @@ import (
 
 const (
 	SERVER_DIR_NAME      = "server"
-	CONFIG_CLIENT_DIR_NAME = "config-client"
+	CONFIG_CLIENT_DIR_NAME = "ui"
 	BUILD_DIR_NAME       = "build"
 )
 
